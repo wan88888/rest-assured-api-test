@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="API Test Suite" parallel="methods" thread-count="3">
+    <test name="JSONPlaceholder API Tests">
+        <classes>
+            <class name="tests.PostsApiTest"/>
+            <class name="tests.UsersApiTest"/>
+            <class name="tests.CommentsApiTest"/>
+        </classes>
+    </test>
+</suite>
