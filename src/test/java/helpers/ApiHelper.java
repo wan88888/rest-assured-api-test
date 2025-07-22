@@ -16,19 +16,47 @@ import java.util.Map;
 public class ApiHelper {
     
     /**
+     * 通用的请求执行方法
+     * @param method HTTP方法
+     * @param endpoint API端点
+     * @param requestBody 请求体（可选）
+     * @param spec 请求规范
+     * @param queryParams 查询参数（可选）
+     * @return Response对象
+     */
+    private static Response executeRequest(String method, String endpoint, Object requestBody, 
+                                         RequestSpecification spec, Map<String, Object> queryParams) {
+        String jsonBody = requestBody != null ? JsonUtils.toJson(requestBody) : null;
+        LogUtils.logApiRequest(method, ApiConfig.getBaseUrl() + endpoint, jsonBody);
+        
+        if (queryParams != null && !queryParams.isEmpty()) {
+            spec.queryParams(queryParams);
+        }
+        
+        if (jsonBody != null) {
+            spec.body(jsonBody);
+        }
+        
+        Response response = spec.when().request(method, endpoint);
+        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
+        
+        return response;
+    }
+    
+    /**
+     * 重载方法：不带查询参数的请求执行
+     */
+    private static Response executeRequest(String method, String endpoint, Object requestBody, RequestSpecification spec) {
+        return executeRequest(method, endpoint, requestBody, spec, null);
+    }
+    
+    /**
      * 执行GET请求
      * @param endpoint API端点
      * @return Response对象
      */
     public static Response get(String endpoint) {
-        LogUtils.logApiRequest("GET", ApiConfig.getBaseUrl() + endpoint, null);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .when()
-                .get(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("GET", endpoint, null, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -38,17 +66,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response get(String endpoint, Map<String, Object> queryParams) {
-        LogUtils.logApiRequest("GET", ApiConfig.getBaseUrl() + endpoint, null);
-        
-        RequestSpecification spec = ApiConfig.getBaseRequestSpec();
-        if (queryParams != null && !queryParams.isEmpty()) {
-            spec.queryParams(queryParams);
-        }
-        
-        Response response = spec.when().get(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("GET", endpoint, null, ApiConfig.getBaseRequestSpec(), queryParams);
     }
     
     /**
@@ -58,16 +76,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response post(String endpoint, Object requestBody) {
-        String jsonBody = JsonUtils.toJson(requestBody);
-        LogUtils.logApiRequest("POST", ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .body(jsonBody)
-                .when()
-                .post(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("POST", endpoint, requestBody, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -77,15 +86,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response post(String endpoint, String jsonBody) {
-        LogUtils.logApiRequest("POST", ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .body(jsonBody)
-                .when()
-                .post(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("POST", endpoint, jsonBody, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -95,16 +96,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response put(String endpoint, Object requestBody) {
-        String jsonBody = JsonUtils.toJson(requestBody);
-        LogUtils.logApiRequest("PUT", ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .body(jsonBody)
-                .when()
-                .put(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("PUT", endpoint, requestBody, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -114,16 +106,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response patch(String endpoint, Object requestBody) {
-        String jsonBody = JsonUtils.toJson(requestBody);
-        LogUtils.logApiRequest("PATCH", ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .body(jsonBody)
-                .when()
-                .patch(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("PATCH", endpoint, requestBody, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -132,14 +115,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response delete(String endpoint) {
-        LogUtils.logApiRequest("DELETE", ApiConfig.getBaseUrl() + endpoint, null);
-        
-        Response response = ApiConfig.getBaseRequestSpec()
-                .when()
-                .delete(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("DELETE", endpoint, null, ApiConfig.getBaseRequestSpec());
     }
     
     /**
@@ -148,14 +124,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response getWithAuth(String endpoint) {
-        LogUtils.logApiRequest("GET", ApiConfig.getBaseUrl() + endpoint, null);
-        
-        Response response = ApiConfig.getAuthenticatedRequestSpec()
-                .when()
-                .get(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("GET", endpoint, null, ApiConfig.getAuthenticatedRequestSpec());
     }
     
     /**
@@ -165,16 +134,7 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response postWithAuth(String endpoint, Object requestBody) {
-        String jsonBody = JsonUtils.toJson(requestBody);
-        LogUtils.logApiRequest("POST", ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
-        Response response = ApiConfig.getAuthenticatedRequestSpec()
-                .body(jsonBody)
-                .when()
-                .post(endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest("POST", endpoint, requestBody, ApiConfig.getAuthenticatedRequestSpec());
     }
     
     /**
@@ -186,22 +146,12 @@ public class ApiHelper {
      * @return Response对象
      */
     public static Response customRequest(String method, String endpoint, Object requestBody, Map<String, String> headers) {
-        String jsonBody = requestBody != null ? JsonUtils.toJson(requestBody) : null;
-        LogUtils.logApiRequest(method, ApiConfig.getBaseUrl() + endpoint, jsonBody);
-        
         RequestSpecification spec = ApiConfig.getBaseRequestSpec();
         
         if (headers != null && !headers.isEmpty()) {
             spec.headers(headers);
         }
         
-        if (jsonBody != null) {
-            spec.body(jsonBody);
-        }
-        
-        Response response = spec.when().request(method, endpoint);
-        
-        LogUtils.logApiResponse(response.getStatusCode(), response.getTime(), response.getBody().asString());
-        return response;
+        return executeRequest(method, endpoint, requestBody, spec);
     }
 }

@@ -56,7 +56,7 @@ public class CommentsApiTest {
             Response response = ApiHelper.get("/comments/" + commentId);
             
             // 验证响应并提取Comment对象
-            Comment comment = DataValidator.validateAndExtractComment(response);
+            DataValidator.validateAndExtractComment(response);
             
             // 验证Comment ID是否正确
             ResponseValidator.validateJsonField(response, "id", commentId);

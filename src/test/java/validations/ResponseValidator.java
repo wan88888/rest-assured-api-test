@@ -7,7 +7,6 @@ import utils.JsonUtils;
 import utils.LogUtils;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 响应验证类，用于验证API响应的各种属性

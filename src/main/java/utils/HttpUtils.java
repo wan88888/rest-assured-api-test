@@ -12,12 +12,31 @@ import java.util.Map;
 public class HttpUtils {
     
     /**
+     * 检查HTTP状态码类型
+     * @param statusCode 状态码
+     * @param statusType 状态类型："success", "client_error", "server_error"
+     * @return 是否匹配指定类型
+     */
+    public static boolean isStatusCodeType(int statusCode, String statusType) {
+        switch (statusType.toLowerCase()) {
+            case "success":
+                return statusCode >= 200 && statusCode < 300;
+            case "client_error":
+                return statusCode >= 400 && statusCode < 500;
+            case "server_error":
+                return statusCode >= 500 && statusCode < 600;
+            default:
+                return false;
+        }
+    }
+    
+    /**
      * 检查HTTP状态码是否为成功状态
      * @param statusCode 状态码
      * @return 是否为成功状态
      */
     public static boolean isSuccessStatusCode(int statusCode) {
-        return statusCode >= 200 && statusCode < 300;
+        return isStatusCodeType(statusCode, "success");
     }
     
     /**
@@ -26,7 +45,7 @@ public class HttpUtils {
      * @return 是否为客户端错误
      */
     public static boolean isClientError(int statusCode) {
-        return statusCode >= 400 && statusCode < 500;
+        return isStatusCodeType(statusCode, "client_error");
     }
     
     /**
@@ -35,8 +54,25 @@ public class HttpUtils {
      * @return 是否为服务器错误
      */
     public static boolean isServerError(int statusCode) {
-        return statusCode >= 500 && statusCode < 600;
+        return isStatusCodeType(statusCode, "server_error");
     }
+    
+    // 状态码描述映射表（静态常量，避免重复创建）
+    private static final Map<Integer, String> STATUS_CODE_MAP = new HashMap<Integer, String>() {{
+        put(200, "OK");
+        put(201, "Created");
+        put(204, "No Content");
+        put(400, "Bad Request");
+        put(401, "Unauthorized");
+        put(403, "Forbidden");
+        put(404, "Not Found");
+        put(405, "Method Not Allowed");
+        put(409, "Conflict");
+        put(422, "Unprocessable Entity");
+        put(500, "Internal Server Error");
+        put(502, "Bad Gateway");
+        put(503, "Service Unavailable");
+    }};
     
     /**
      * 获取状态码描述
@@ -44,22 +80,7 @@ public class HttpUtils {
      * @return 状态码描述
      */
     public static String getStatusCodeDescription(int statusCode) {
-        Map<Integer, String> statusCodeMap = new HashMap<>();
-        statusCodeMap.put(200, "OK");
-        statusCodeMap.put(201, "Created");
-        statusCodeMap.put(204, "No Content");
-        statusCodeMap.put(400, "Bad Request");
-        statusCodeMap.put(401, "Unauthorized");
-        statusCodeMap.put(403, "Forbidden");
-        statusCodeMap.put(404, "Not Found");
-        statusCodeMap.put(405, "Method Not Allowed");
-        statusCodeMap.put(409, "Conflict");
-        statusCodeMap.put(422, "Unprocessable Entity");
-        statusCodeMap.put(500, "Internal Server Error");
-        statusCodeMap.put(502, "Bad Gateway");
-        statusCodeMap.put(503, "Service Unavailable");
-        
-        return statusCodeMap.getOrDefault(statusCode, "Unknown Status Code");
+        return STATUS_CODE_MAP.getOrDefault(statusCode, "Unknown Status Code");
     }
     
     /**

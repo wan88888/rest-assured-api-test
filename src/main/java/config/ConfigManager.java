@@ -48,22 +48,54 @@ public class ConfigManager {
         return properties.getProperty(key, defaultValue);
     }
     
+    /**
+     * 通用的类型转换方法
+     * @param key 属性键
+     * @param type 目标类型
+     * @param defaultValue 默认值
+     * @param <T> 泛型类型
+     * @return 转换后的值
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getTypedProperty(String key, Class<T> type, T defaultValue) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        
+        try {
+            if (type == String.class) {
+                return (T) value;
+            } else if (type == Integer.class || type == int.class) {
+                return (T) Integer.valueOf(value);
+            } else if (type == Boolean.class || type == boolean.class) {
+                return (T) Boolean.valueOf(value);
+            } else if (type == Long.class || type == long.class) {
+                return (T) Long.valueOf(value);
+            } else if (type == Double.class || type == double.class) {
+                return (T) Double.valueOf(value);
+            }
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+        
+        return defaultValue;
+    }
+    
     public int getIntProperty(String key) {
-        return Integer.parseInt(properties.getProperty(key));
+        return getTypedProperty(key, Integer.class, 0);
     }
     
     public int getIntProperty(String key, int defaultValue) {
-        String value = properties.getProperty(key);
-        return value != null ? Integer.parseInt(value) : defaultValue;
+        return getTypedProperty(key, Integer.class, defaultValue);
     }
     
     public boolean getBooleanProperty(String key) {
-        return Boolean.parseBoolean(properties.getProperty(key));
+        return getTypedProperty(key, Boolean.class, false);
     }
     
     public boolean getBooleanProperty(String key, boolean defaultValue) {
-        String value = properties.getProperty(key);
-        return value != null ? Boolean.parseBoolean(value) : defaultValue;
+        return getTypedProperty(key, Boolean.class, defaultValue);
     }
     
     // API相关配置

@@ -27,7 +27,7 @@ public class PostsApiTest {
             Response response = ApiHelper.get("/posts");
             
             // 验证响应
-            List<Post> posts = DataValidator.validateAndExtractPostList(response, 1);
+            DataValidator.validateAndExtractPostList(response, 1);
             
             // 验证列表不为空且包含预期数量的posts
             ResponseValidator.validateJsonArrayNotEmpty(response, "$");
